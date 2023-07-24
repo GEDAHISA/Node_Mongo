@@ -30,7 +30,8 @@ app.post('/usuario', async (req, res)=> {
   //crio o objeto usuario copiado do objeto body
   const usuario = {nome,idade,ativo,email}
    //cria o usuario atraves do moongose
-  await Usuario.create(usuario)
+  const usuarioBD = await Usuario.create(usuario)
+  data: usuarioBD
   res.status(201).json('Usuario criado com sucesso')
 })
 
@@ -48,11 +49,35 @@ res.status(200).json('usuario atualizado com sucesso!')
 })
 
 
-app.get('/Usuario',async (req, res)=>{
+app.get('/usuarios',async (req, res)=>{
   const usuarios = await Usuario.find()
   res.status(200).json(usuarios)
+})
+
+app.get('/usuario/:id', async (req, res)=>{ 
+  const id = req.params.id
+
+  const usuario = await Usuario.findOne({ _id: id})
+  res.status(200).json(usuario)
 
 })
+app.delete('/usuario/:id',  async (req,res)=>{
+const id = req.params.id
+//busca i usuario antes de deletar, as informações
+const usuarioBD = await Usuario.findOne({ _id: id})
+//deleta o usuario do banco
+const usuario = await Usuario.deleteOne({_id: usuarioBD.id})
+//Pego a data atual e formato 
+let date = moment(new Date()).format('dd/mm/yyyy hh:mm:ss')
+let msg = `o usuario ${usuarioBD.nome}foi excluido com sucesso às ${date}!`
+res.status(200).json({msg}) 
+
+})
+
+
+
+
+
 const DB_USER = process.env.DB_USER
 const DB_PASS = process.env.DB_PASS
 
